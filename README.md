@@ -30,6 +30,6 @@ Then use the --kubeconfig=PATH-TO-CONFIG-FILE arg to specify the newly created c
 
 ### Update a secret
 
-![update secret](update-secret.gif)
+![update secret](docs/update-secret.gif)
 
 Upload is inteded to be done via some GitOps Tool (e.g. FluxCD etc)
