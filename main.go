@@ -53,17 +53,6 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// Make sure these keys always quit
-	if msg, ok := msg.(tea.KeyMsg); ok {
-		k := msg.String()
-		if k == "ctrl+c" {
-			m.quitting = true
-			return m, tea.Quit
-		}
-	}
-
-	// Hand off the message and model to the appropriate update function for the
-	// appropriate view based on the current state.
 	switch m.state {
 	case initialList, namespacesList, secretsList:
 		return updateList(msg, m)
