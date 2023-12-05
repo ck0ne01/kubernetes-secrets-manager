@@ -1,8 +1,0 @@
-apiVersion: v1
-data:
-  admin: bXlhZG1pbg==
-  password: bXlwYXNzd29yZA==
-kind: Secret
-metadata:
-  creationTimestamp: null
-  name: test
