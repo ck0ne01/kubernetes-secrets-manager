@@ -14,9 +14,7 @@ import (
 )
 
 func main() {
-	// TODO: reactivate fullscreen
-	// if _, err := tea.NewProgram(initialModel(), tea.WithAltScreen()).Run(); err != nil {
-	if _, err := tea.NewProgram(initialModel()).Run(); err != nil {
+	if _, err := tea.NewProgram(initialModel(), tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
