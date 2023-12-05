@@ -128,6 +128,7 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 
 func initialTextInput() textinput.Model {
 	width, _, _ := term.GetSize(0)
+
 	ti := textinput.New()
 	ti.Placeholder = "my-secret"
 	ti.CharLimit = 156
@@ -137,8 +138,9 @@ func initialTextInput() textinput.Model {
 }
 
 func initialTextArea(secretData string) textarea.Model {
-	ti := textarea.New()
 	width, _, _ := term.GetSize(0)
+
+	ti := textarea.New()
 	ti.SetWidth(width - 1)
 	ti.Focus()
 
