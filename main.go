@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -137,7 +137,7 @@ func initialTextInput() textinput.Model {
 
 func initialTextArea(secretData string) textarea.Model {
 	ti := textarea.New()
-	width, _, _ := terminal.GetSize(0)
+	width, _, _ := term.GetSize(0)
 	ti.SetWidth(width - 1)
 	ti.Focus()
 
