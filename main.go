@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"golang.org/x/crypto/ssh/terminal"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 func main() {
@@ -26,14 +27,15 @@ type (
 )
 
 type model struct {
-	secrets    *v1.SecretList
-	secretName string
-	secretData string
-	quitting   bool
-	err        error
-	list       list.Model
-	textarea   textarea.Model
-	state      state
+	k8sclientset *kubernetes.Clientset
+	secrets      *v1.SecretList
+	secretName   string
+	secretData   string
+	quitting     bool
+	err          error
+	list         list.Model
+	textarea     textarea.Model
+	state        state
 }
 
 const (
@@ -89,9 +91,10 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "enter":
 			switch state := m.state; state {
 			case initialList:
+				m.k8sclientset = createClientSet()
 				m.state = namespacesList
 				m.list.Title = "Choose a namespace"
-				return m, handleNamespaceQuery()
+				return m, handleNamespaceQuery(m.k8sclientset)
 			case namespacesList:
 				var namespace string
 				i, ok := m.list.SelectedItem().(item)
@@ -100,7 +103,7 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 					m.list.Title = "Choose a secret"
 					m.state = secretsList
 				}
-				return m, handleSecretsQuery(namespace)
+				return m, handleSecretsQuery(m.k8sclientset, namespace)
 			case secretsList:
 				i, ok := m.list.SelectedItem().(item)
 				if ok {
@@ -124,9 +127,9 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func handleNamespaceQuery() tea.Cmd {
+func handleNamespaceQuery(clientSet *kubernetes.Clientset) tea.Cmd {
 	return func() tea.Msg {
-		namespaces, err := fetchNamespaces()
+		namespaces, err := fetchNamespaces(clientSet)
 		if err != nil {
 			return errorMsg(err)
 		}
@@ -134,9 +137,9 @@ func handleNamespaceQuery() tea.Cmd {
 	}
 }
 
-func handleSecretsQuery(namespace string) tea.Cmd {
+func handleSecretsQuery(clientSet *kubernetes.Clientset, namespace string) tea.Cmd {
 	return func() tea.Msg {
-		secrets, err := fetchSecrets(namespace)
+		secrets, err := fetchSecrets(clientSet, namespace)
 		if err != nil {
 			return errorMsg(err)
 		}

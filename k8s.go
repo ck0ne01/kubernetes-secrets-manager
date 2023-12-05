@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	b64 "encoding/base64"
+	"flag"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -12,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 type (
@@ -31,17 +34,19 @@ type metadata struct {
 	Name string
 }
 
-func fetchNamespaces() (*v1.NamespaceList, error) {
-	// var kubeconfig *string
-	// if home := homedir.HomeDir(); home != "" {
-	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	// } else {
-	// 	kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	// }
-	// flag.Parse()
+func createClientSet() *kubernetes.Clientset {
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+	flag.Parse()
+
+	clientcmd.NewDefaultPathOptions()
 
 	// Use the kubeconfig files to create a Kubernetes client configuration
-	config, err := clientcmd.BuildConfigFromFlags("", "/Users/christian.kirmse/.kube/config_go")
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -51,7 +56,10 @@ func fetchNamespaces() (*v1.NamespaceList, error) {
 	if err != nil {
 		panic(err.Error())
 	}
+	return clientset
+}
 
+func fetchNamespaces(clientset *kubernetes.Clientset) (*v1.NamespaceList, error) {
 	namespaces, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
@@ -70,27 +78,7 @@ func namespacesToListItems(namespaces *v1.NamespaceList) namespacesItemsMsg {
 	return namespacesItemsMsg(items)
 }
 
-func fetchSecrets(namespace string) (*v1.SecretList, error) {
-	// var kubeconfig *string
-	// if home := homedir.HomeDir(); home != "" {
-	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	// } else {
-	// 	kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	// }
-	// flag.Parse()
-
-	// Use the kubeconfig files to create a Kubernetes client configuration
-	config, err := clientcmd.BuildConfigFromFlags("", "/Users/christian.kirmse/.kube/config_go")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// Create a Kubernetes clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-
+func fetchSecrets(clientset *kubernetes.Clientset, namespace string) (*v1.SecretList, error) {
 	secrets, err := clientset.CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
