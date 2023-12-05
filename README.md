@@ -15,7 +15,7 @@ A TUI to create, update and encrypt kubernetes secrets.
 
 ### Context
 
-Configure your kubernets cluster context in your terminal kubectl config set-context <CONTEXT>.
+Configure your kubernets cluster context in your terminal kubectl config use-context <CONTEXT>.
 The KUBECONFIG environment variable is currently not supportet, to use this TUI you can write a new config file.
 
 ```
