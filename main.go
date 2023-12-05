@@ -91,10 +91,23 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "enter":
 			switch state := m.state; state {
 			case initialList:
-				m.k8sclientset = createClientSet()
-				m.state = namespacesList
-				m.list.Title = "Choose a namespace"
-				return m, handleNamespaceQuery(m.k8sclientset)
+				i, ok := m.list.SelectedItem().(item)
+				if !ok {
+					fmt.Println("Something went wrong, could not process selection.")
+					os.Exit(1)
+				}
+				if i == "Create a new secret" {
+					m.state = texteditView
+					m.textarea = initialTextArea("")
+					return m, textarea.Blink
+				}
+				if i == "Update an existing secret" {
+					m.k8sclientset = createClientSet()
+					m.state = namespacesList
+					m.list.Title = "Choose a namespace"
+					return m, handleNamespaceQuery(m.k8sclientset)
+				}
+				return m, nil
 			case namespacesList:
 				var namespace string
 				i, ok := m.list.SelectedItem().(item)
@@ -110,13 +123,7 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 					m.secretName = string(i)
 					m.state = texteditView
 					secretData := getSecretData(m.secrets, m.secretName)
-					fmt.Println(secretData)
-					ti := textarea.New()
-					ti.SetValue(secretData)
-					width, _, _ := terminal.GetSize(0)
-					ti.SetWidth(width - 1)
-					ti.Focus()
-					m.textarea = ti
+					m.textarea = initialTextArea(secretData)
 				}
 				return m, textarea.Blink
 			}
@@ -125,6 +132,19 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 
 	m.list, cmd = m.list.Update(msg)
 	return m, cmd
+}
+
+func initialTextArea(secretData string) textarea.Model {
+	ti := textarea.New()
+	width, _, _ := terminal.GetSize(0)
+	ti.SetWidth(width - 1)
+	ti.Focus()
+
+	if len(secretData) > 0 {
+		ti.SetValue(secretData)
+	}
+
+	return ti
 }
 
 func handleNamespaceQuery(clientSet *kubernetes.Clientset) tea.Cmd {
