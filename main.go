@@ -127,10 +127,11 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 }
 
 func initialTextInput() textinput.Model {
+	width, _, _ := term.GetSize(0)
 	ti := textinput.New()
 	ti.Placeholder = "my-secret"
 	ti.CharLimit = 156
-	ti.Width = 20
+	ti.Width = width - 1
 	ti.Focus()
 	return ti
 }
