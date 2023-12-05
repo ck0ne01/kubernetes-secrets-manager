@@ -288,7 +288,7 @@ func (m model) View() string {
 		return fmt.Sprintf(
 			"Enter the name of your new secret.\n\n%s\n\n%s",
 			m.textinput.View(),
-			"(esc to quit)",
+			"(ctrl+c to quit, enter to save)",
 		) + "\n"
 	}
 	return "no view found"
