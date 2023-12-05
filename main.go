@@ -229,9 +229,10 @@ func updateInputView(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 			}
 		case tea.KeyCtrlC:
 			return m, tea.Quit
-		case tea.KeyCtrlS:
+		case tea.KeyEnter:
 			m.secretName = m.textinput.Value()
 			m.state = texteditView
+			m.textarea = initialTextArea("")
 			return m, nil
 		default:
 			if !m.textinput.Focused() {
