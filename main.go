@@ -130,7 +130,7 @@ func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 
 func initialTextInput() textinput.Model {
 	ti := textinput.New()
-	ti.Placeholder = "Pikachu"
+	ti.Placeholder = "my-secret"
 	ti.CharLimit = 156
 	ti.Width = 20
 	ti.Focus()
@@ -145,8 +145,10 @@ func initialTextArea(secretData string) textarea.Model {
 
 	if len(secretData) > 0 {
 		ti.SetValue(secretData)
+		return ti
 	}
 
+	ti.Placeholder = "password: secret"
 	return ti
 }
 
