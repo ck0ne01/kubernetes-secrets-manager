@@ -1,11 +1,13 @@
 # kubernetes secrets manager
 
-## What is it?
-
 Ksm provides a terminal UI to handle kubernetes secrets. The aim of this project is to make it easier to change existing encrypted secrets specially with many data entries.
 It let you choose an existing secret in a kubernetes cluster, edit the data and write it to an encrypted file.
 
-## How to use?
+## Installation
+
+Download a pre-built binary for your architecture from the realeases page.
+
+## Usage
 
 ### Context
 
