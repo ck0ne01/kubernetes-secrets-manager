@@ -1,15 +1,9 @@
 # kubernetes secrets manager
 
-## <WIP>
-
-### Available features
-
-- connect to a kubernetes cluster choose a secret from a namespace and update its data
-- save the secret to filesystem and enrypt it with SOPS
-
 ## What is it?
 
-A TUI to create, update and encrypt kubernetes secrets.
+Ksm provides a terminal UI to handle kubernetes secrets. The aim of this project is to make it easier to change existing encrypted secrets specially with many data entries.
+It let you choose an existing secret in a kubernetes cluster, edit the data and write it to an encrypted file.
 
 ## How to use?
 
@@ -22,7 +16,12 @@ The KUBECONFIG environment variable is currently not supportet, to use this TUI 
 kubectl view --flatten > PATH-TO-CONFIG-FILE
 ```
 
-Then use the --kubeconfig=PATH-TO-CONFIG-FILE arg to specify the newly created config.
+Then use the `--kubeconfig=PATH-TO-CONFIG-FILE` arg to specify the newly created config.
+
+### Encryption
+
+Encryption is done with [SOPS](https://github.com/getsops/sops) and thus is needed to be installed and configured.
+Follow the instructions in the repo to set it up.
 
 ### Create a secret
 
@@ -31,5 +30,3 @@ Then use the --kubeconfig=PATH-TO-CONFIG-FILE arg to specify the newly created c
 ### Update a secret
 
 ![update secret](docs/update-secret.gif)
-
-Upload is inteded to be done via some GitOps Tool (e.g. FluxCD etc)
