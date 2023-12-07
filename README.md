@@ -5,6 +5,13 @@ It let you choose an existing secret in a kubernetes cluster, edit the data and 
 
 ## Installation
 
+#### MacOS
+
+`brew tap ck0ne01/homebrew-ck0ne01 
+brew install ck0ne01/ck0ne01/ksm`
+
+#### Others
+
 Download a pre-built binary for your architecture from the realeases page.
 
 ## Usage
