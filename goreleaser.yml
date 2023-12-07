@@ -1,0 +1,31 @@
+builds:
+  - binary: ksm
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -mod=vendor
+
+release:
+  prerelease: auto
+
+universal_binaries:
+  - replace: true
+
+brews:
+  - name: ksm
+    homepage: https://github.com/ck0ne01/kubernetes-secrets-manager
+    tap:
+      owner: ck0ne01
+      name: homebrew-ck0ne01
+    commit_author:
+      name: ck0ne01
+      email: ck0ne01@icloud.com
+
+checksum:
+  name_template: "checksums.txt"
