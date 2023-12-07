@@ -7,8 +7,10 @@ It let you choose an existing secret in a kubernetes cluster, edit the data and 
 
 #### MacOS
 
-`brew tap ck0ne01/homebrew-ck0ne01 
-brew install ck0ne01/ck0ne01/ksm`
+```
+brew tap ck0ne01/homebrew-ck0ne01
+brew install ck0ne01/ck0ne01/ksm
+```
 
 #### Others
 
