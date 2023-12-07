@@ -289,13 +289,13 @@ func (m model) View() string {
 		return fmt.Sprintf(
 			"Enter Secret Data.\n\n%s\n\n%s",
 			m.textarea.View(),
-			m.help.View(keys),
+			m.help.View(textareaKeys),
 		) + "\n\n"
 	case textInputView:
 		return fmt.Sprintf(
 			"Enter the name of your new secret.\n\n%s\n\n%s",
 			m.textinput.View(),
-			m.help.View(keys),
+			m.help.View(textinputKeys),
 		) + "\n"
 	}
 	return "no view found"

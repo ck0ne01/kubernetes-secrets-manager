@@ -20,7 +20,7 @@ func (k keyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-var keys = keyMap{
+var textareaKeys = keyMap{
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
@@ -28,6 +28,17 @@ var keys = keyMap{
 	Save: key.NewBinding(
 		key.WithKeys("ctrl+s"),
 		key.WithHelp("ctrl+s", "save"),
+	),
+}
+
+var textinputKeys = keyMap{
+	Quit: key.NewBinding(
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
+	),
+	Save: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "save"),
 	),
 }
 
