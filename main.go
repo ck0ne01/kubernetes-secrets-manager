@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -32,6 +33,7 @@ type model struct {
 	secretData   string
 	quitting     bool
 	err          error
+	help         help.Model
 	list         list.Model
 	textarea     textarea.Model
 	textinput    textinput.Model
@@ -271,7 +273,9 @@ func initialModel() model {
 	l.Styles.PaginationStyle = paginationStyle
 	l.Styles.HelpStyle = helpStyle
 
-	return model{list: l, state: initialList}
+	h := newHelpModel()
+
+	return model{list: l, help: h, state: initialList}
 }
 
 func (m model) View() string {
@@ -285,13 +289,13 @@ func (m model) View() string {
 		return fmt.Sprintf(
 			"Enter Secret Data.\n\n%s\n\n%s",
 			m.textarea.View(),
-			"(ctrl+c to quit, ctrl+s to save)",
+			m.help.View(keys),
 		) + "\n\n"
 	case textInputView:
 		return fmt.Sprintf(
 			"Enter the name of your new secret.\n\n%s\n\n%s",
 			m.textinput.View(),
-			"(ctrl+c to quit, enter to save)",
+			m.help.View(keys),
 		) + "\n"
 	}
 	return "no view found"
