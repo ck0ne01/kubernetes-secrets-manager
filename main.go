@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"golang.org/x/term"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -45,7 +44,7 @@ const (
 	namespacesList
 	secretsList
 	texteditView
-	textInputView
+	textinputView
 )
 
 func (m model) Init() tea.Cmd {
@@ -57,204 +56,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case initialList, namespacesList, secretsList:
 		return updateList(msg, m)
 	case texteditView:
-		return updateEditView(msg, m)
-	case textInputView:
+		return updateTextarea(msg, m)
+	case textinputView:
 		return updateInputView(msg, m)
 	}
 	return updateList(msg, m)
-}
-
-func updateList(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.list.SetWidth(msg.Width)
-		return m, nil
-
-	case namespacesItemsMsg:
-		m.list.SetItems(msg)
-
-	case secretsMsg:
-		m.secrets = msg
-		secretsListItems := secretNamesToListItems(msg)
-		m.list.SetItems(secretsListItems)
-
-	case tea.KeyMsg:
-		switch keypress := msg.String(); keypress {
-		case "enter":
-			switch state := m.state; state {
-			case initialList:
-				i, ok := m.list.SelectedItem().(item)
-				if !ok {
-					fmt.Println("Something went wrong, could not process selection.")
-					os.Exit(1)
-				}
-				if i == "Create a new secret" {
-					m.state = textInputView
-					m.textinput = initialTextInput()
-					return m, textinput.Blink
-				}
-				if i == "Update an existing secret" {
-					m.k8sclientset = createClientSet()
-					m.state = namespacesList
-					m.list.Title = "Choose a namespace"
-					return m, handleNamespaceQuery(m.k8sclientset)
-				}
-				return m, nil
-			case namespacesList:
-				var namespace string
-				i, ok := m.list.SelectedItem().(item)
-				if ok {
-					namespace = string(i)
-					m.list.Title = "Choose a secret"
-					m.state = secretsList
-				}
-				return m, handleSecretsQuery(m.k8sclientset, namespace)
-			case secretsList:
-				i, ok := m.list.SelectedItem().(item)
-				if ok {
-					m.secretName = string(i)
-					m.state = texteditView
-					secretData := getSecretData(m.secrets, m.secretName)
-					m.textarea = initialTextArea(secretData)
-				}
-				return m, textarea.Blink
-			}
-		}
-	}
-
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
-}
-
-func initialTextInput() textinput.Model {
-	width, _, _ := term.GetSize(0)
-
-	ti := textinput.New()
-	ti.Placeholder = "my-secret"
-	ti.CharLimit = 156
-	ti.Width = width - 1
-	ti.Focus()
-	return ti
-}
-
-func initialTextArea(secretData string) textarea.Model {
-	width, _, _ := term.GetSize(0)
-
-	ti := textarea.New()
-	ti.SetWidth(width - 1)
-	ti.Focus()
-
-	if len(secretData) > 0 {
-		ti.SetValue(secretData)
-		return ti
-	}
-
-	ti.Placeholder = "password: secret"
-	return ti
-}
-
-func handleNamespaceQuery(clientSet *kubernetes.Clientset) tea.Cmd {
-	return func() tea.Msg {
-		namespaces, err := fetchNamespaces(clientSet)
-		if err != nil {
-			return errorMsg(err)
-		}
-		return namespacesToListItems(namespaces)
-	}
-}
-
-func handleSecretsQuery(clientSet *kubernetes.Clientset, namespace string) tea.Cmd {
-	return func() tea.Msg {
-		secrets, err := fetchSecrets(clientSet, namespace)
-		if err != nil {
-			return errorMsg(err)
-		}
-		return secretsMsg(secrets)
-	}
-}
-
-func updateEditView(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEsc:
-			if m.textarea.Focused() {
-				m.textarea.Blur()
-			}
-		case tea.KeyCtrlC:
-			return m, tea.Quit
-		case tea.KeyCtrlS:
-			textareaValue := m.textarea.Value()
-			secretsData := stringToSecretData(&textareaValue)
-			return m, tea.Sequence(handleSaveToFile(m.secretName, secretsData), encryptFileWithSops(m.secretName), tea.Quit)
-		default:
-			if !m.textarea.Focused() {
-				cmd = m.textarea.Focus()
-				cmds = append(cmds, cmd)
-			}
-		}
-
-	// We handle errors just like any other message
-	case errorMsg:
-		m.err = msg
-		return m, nil
-	}
-
-	m.textarea, cmd = m.textarea.Update(msg)
-	cmds = append(cmds, cmd)
-	return m, tea.Batch(cmds...)
-}
-
-func handleSaveToFile(secretName string, secretData secretData) tea.Cmd {
-	return func() tea.Msg {
-		secretYamlContent, err := createSecretYamlContent(secretName, secretData)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		return os.WriteFile(fmt.Sprintf("%s.yaml", secretName), secretYamlContent, 0666)
-	}
-}
-
-func updateInputView(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEsc:
-			if m.textinput.Focused() {
-				m.textinput.Blur()
-			}
-		case tea.KeyCtrlC:
-			return m, tea.Quit
-		case tea.KeyEnter:
-			m.secretName = m.textinput.Value()
-			m.state = texteditView
-			m.textarea = initialTextArea("")
-			return m, nil
-		default:
-			if !m.textinput.Focused() {
-				cmd = m.textinput.Focus()
-				cmds = append(cmds, cmd)
-			}
-		}
-
-	// We handle errors just like any other message
-	case errorMsg:
-		m.err = msg
-		return m, nil
-	}
-
-	m.textinput, cmd = m.textinput.Update(msg)
-	cmds = append(cmds, cmd)
-	return m, tea.Batch(cmds...)
 }
 
 func initialModel() model {
@@ -291,7 +97,7 @@ func (m model) View() string {
 			m.textarea.View(),
 			m.help.View(textareaKeys),
 		) + "\n\n"
-	case textInputView:
+	case textinputView:
 		return fmt.Sprintf(
 			"Enter the name of your new secret.\n\n%s\n\n%s",
 			m.textinput.View(),

@@ -10,16 +10,6 @@ type keyMap struct {
 	Save key.Binding
 }
 
-func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Save, k.Quit}
-}
-
-func (k keyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.Save, k.Quit},
-	}
-}
-
 var textareaKeys = keyMap{
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
@@ -40,6 +30,16 @@ var textinputKeys = keyMap{
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "save"),
 	),
+}
+
+func (k keyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Save, k.Quit}
+}
+
+func (k keyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.Save, k.Quit},
+	}
 }
 
 func newHelpModel() help.Model {
