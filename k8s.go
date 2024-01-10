@@ -24,10 +24,10 @@ type (
 )
 
 type secret struct {
-	ApiVersion string
-	Data       secretData
-	Kind       string
-	Metadata   metadata
+	ApiVersion string     `yaml:"apiVersion"`
+	Data       secretData `yaml:"data"`
+	Kind       string     `yaml:"kind"`
+	Metadata   metadata   `yaml:"metadata"`
 }
 
 type metadata struct {
