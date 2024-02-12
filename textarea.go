@@ -15,6 +15,7 @@ func initialTextArea(secretData string) textarea.Model {
 	ti := textarea.New()
 	ti.SetWidth(width - 1)
 	ti.Focus()
+	ti.CharLimit = 1048
 
 	if len(secretData) > 0 {
 		ti.SetValue(secretData)
