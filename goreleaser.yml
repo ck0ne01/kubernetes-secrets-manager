@@ -17,7 +17,7 @@ release:
 brews:
   - name: ksm
     homepage: https://github.com/ck0ne01/kubernetes-secrets-manager
-    tap:
+    repository:
       owner: ck0ne01
       name: homebrew-ck0ne01
     commit_author:
