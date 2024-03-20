@@ -100,7 +100,7 @@ func stringToSecretData(secretData *string) secretData {
 	orderedSecretData := make(map[string]string)
 	secretDataLines := strings.Split(strings.TrimSpace(*secretData), "\n")
 	for _, secretDataLine := range secretDataLines {
-		secretDataLineElements := strings.Split(secretDataLine, ":")
+		secretDataLineElements := strings.SplitN(secretDataLine, ":", 2)
 		key := secretDataLineElements[0]
 		value := strings.TrimSpace(secretDataLineElements[1])
 		encodedValue := b64.StdEncoding.EncodeToString([]byte(value))
