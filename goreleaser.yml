@@ -19,7 +19,7 @@ brews:
     homepage: https://github.com/ck0ne01/kubernetes-secrets-manager
     repository:
       owner: ck0ne01
-      name: homebrew-ck0ne01
+      name: homebrew
     commit_author:
       name: ck0ne01
       email: ck0ne01@icloud.com
